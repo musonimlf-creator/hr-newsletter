@@ -39,3 +39,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# database
+*.db
+*.db-shm
+*.db-wal
+newsletter.db*
+
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md
+
+
+#Ignore cursor AI rules
+.cursor\rules\codacy.mdc
