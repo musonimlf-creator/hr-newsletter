@@ -13,9 +13,17 @@ export interface Employee {
   photoUrl?: string;
   date?: string;
   achievement?: string;
+  // For transfers
   fromDepartment?: string;
   toDepartment?: string;
+  fromPosition?: string;
+  toPosition?: string;
+  // For promotions: previous role/department (optional)
+  previousPosition?: string;
+  previousDepartment?: string;
   comments?: EmployeeComment[];
+  // Optional fields used in various cards
+  blurb?: string;
 }
 
 export interface Event {
@@ -23,6 +31,7 @@ export interface Event {
   title: string;
   date: string;
   description: string;
+  location?: string;
 }
 
 export interface NewsletterData {
@@ -43,9 +52,12 @@ export type ViewMode = 'editor' | 'preview';
 
 export type CategoryKey = keyof Omit<NewsletterData, 'month' | 'year'>;
 
+import type { ReactNode } from 'react';
+
 export interface EditorSectionProps {
   title: string;
-  icon: any;
+  // Icon should be a component that accepts className/size for consistent usage
+  icon: React.ComponentType<{ className?: string; size?: number }>; 
   category: CategoryKey;
   items: Employee[] | Event[] | Employee | null;
   showFromTo?: boolean;

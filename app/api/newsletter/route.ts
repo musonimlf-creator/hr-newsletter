@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDatabase } from '@/lib/db';
-import type { NewsletterData } from '@/types/newsletter';
+import type { NewsletterData, EmployeeComment, Employee } from '@/types/newsletter';
+
+function safeString(v: unknown) {
+  return v === undefined || v === null ? '' : String(v);
+}
 
 // GET - Fetch newsletter data for a specific month/year
 export async function GET(request: NextRequest) {
@@ -40,7 +44,7 @@ export async function GET(request: NextRequest) {
       .prepare(
         'SELECT * FROM newsletter_entries WHERE newsletter_id = ? ORDER BY category, entry_order, id' // photo_url loaded via *
       )
-      .all(newsletter.id) as any[];
+      .all(newsletter.id) as Array<Record<string, unknown>>;
 
     // Fetch comments for entries
     const entryIds = entries.map((e) => e.id);
@@ -50,20 +54,21 @@ export async function GET(request: NextRequest) {
             .prepare(
               `SELECT * FROM entry_comments WHERE entry_id IN (${entryIds.map(() => '?').join(',')}) ORDER BY created_at`
             )
-            .all(...entryIds)
+            .all(...entryIds) as Array<Record<string, unknown>>
         : [];
 
     // Group comments by entry_id
-    const commentsByEntry: Record<number, any[]> = {};
-    comments.forEach((comment: any) => {
-      if (!commentsByEntry[comment.entry_id]) {
-        commentsByEntry[comment.entry_id] = [];
+    const commentsByEntry: Record<number, EmployeeComment[]> = {};
+    comments.forEach((comment) => {
+      const entryId = Number(comment['entry_id']);
+      if (!commentsByEntry[entryId]) {
+        commentsByEntry[entryId] = [];
       }
-      commentsByEntry[comment.entry_id].push({
-        id: comment.id.toString(),
-        user: comment.user,
-        content: comment.content,
-        date: comment.created_at,
+      commentsByEntry[entryId].push({
+        id: safeString(comment['id']).toString(),
+        user: safeString(comment['user']),
+        content: safeString(comment['content']),
+        date: safeString(comment['created_at']),
       });
     });
 
@@ -83,44 +88,66 @@ export async function GET(request: NextRequest) {
     };
 
     entries.forEach((entry) => {
-      const entryData: any = {
-        id: entry.id.toString(),
-        name: entry.name || '',
-        position: entry.position || '',
-        department: entry.department || '',
-        photoUrl: entry.photo_url || '',
-        date: entry.date || '',
+      const id = Number(entry['id']);
+      const entryData: Partial<Employee> & { id: string; comments?: EmployeeComment[] } = {
+        id: safeString(entry['id']),
+        name: safeString(entry['name']),
+        position: safeString(entry['position']),
+        department: safeString(entry['department']),
+        photoUrl: safeString(entry['photo_url']),
+        date: safeString(entry['date']),
       };
 
 
-      if (entry.from_department) entryData.fromDepartment = entry.from_department;
-      if (entry.to_department) entryData.toDepartment = entry.to_department;
-      if (entry.achievement) entryData.achievement = entry.achievement;
-      if (commentsByEntry[entry.id]) {
-        entryData.comments = commentsByEntry[entry.id];
+      if (entry['from_department']) entryData.fromDepartment = safeString(entry['from_department']);
+      if (entry['to_department']) entryData.toDepartment = safeString(entry['to_department']);
+      if (entry['achievement']) entryData.achievement = safeString(entry['achievement']);
+      if (commentsByEntry[id]) {
+        entryData.comments = commentsByEntry[id];
       }
 
-      const category = entry.category as keyof NewsletterData;
+      const category = safeString(entry['category']) as keyof NewsletterData;
 
       if (category === 'events') {
         newsletterData.events.push({
-          id: entry.id.toString(),
-          title: entry.title || '',
-          date: entry.date || '',
-          description: entry.description || '',
+          id: safeString(entry['id']),
+          title: safeString(entry['title']),
+          date: safeString(entry['date']),
+          description: safeString(entry['description']),
         });
       } else if (category === 'bestEmployee' || category === 'bestPerformer') {
-        newsletterData[category] = entryData;
+        // Best employee/perfomer are single objects, ensure required fields are present
+        newsletterData[category] = {
+          id: entryData.id,
+          name: entryData.name || '',
+          position: entryData.position || '',
+          department: entryData.department || '',
+          photoUrl: entryData.photoUrl,
+          date: entryData.date,
+          achievement: entryData.achievement,
+          fromDepartment: entryData.fromDepartment,
+          toDepartment: entryData.toDepartment,
+          comments: entryData.comments,
+        } as Employee;
       } else if (Array.isArray(newsletterData[category])) {
-        (newsletterData[category] as any[]).push(entryData);
+        (newsletterData[category] as Employee[]).push(entryData as Employee);
       }
     });
 
     return NextResponse.json({ data: newsletterData });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching newsletter:', error);
+    const message = error instanceof Error ? error.message : String(error);
+    const stack = error instanceof Error ? error.stack : undefined;
     return NextResponse.json(
-      { error: 'Failed to fetch newsletter data', details: error.message },
+      {
+        error: 'Failed to fetch newsletter data',
+        details: message,
+        stack,
+        requestUrl: request.url,
+        cwd: process.cwd(),
+        nodeEnv: process.env.NODE_ENV || null,
+      },
       { status: 500 }
     );
   }
@@ -178,11 +205,11 @@ export async function POST(request: NextRequest) {
       // Helper to insert employee entries
       const insertEmployeeEntries = (
         category: string,
-        employees: any[] | any | null,
+        employees: Employee[] | Employee | null,
         isSingle = false
       ) => {
         if (isSingle && employees) {
-          const emp = employees as any;
+          const emp = employees as Employee;
           insertEntry.run(
             newsletterId,
             category,
@@ -254,10 +281,19 @@ export async function POST(request: NextRequest) {
     })();
 
     return NextResponse.json({ success: true, message: 'Newsletter saved successfully' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error saving newsletter:', error);
+    const message = error instanceof Error ? error.message : String(error);
+    const stack = error instanceof Error ? error.stack : undefined;
     return NextResponse.json(
-      { error: 'Failed to save newsletter data', details: error.message },
+      {
+        error: 'Failed to save newsletter data',
+        details: message,
+        stack,
+        requestUrl: request.url,
+        cwd: process.cwd(),
+        nodeEnv: process.env.NODE_ENV || null,
+      },
       { status: 500 }
     );
   }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 // Database initialization script
 // Run this manually if needed: node scripts/init-db.js
 

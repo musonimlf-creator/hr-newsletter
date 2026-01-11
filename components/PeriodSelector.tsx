@@ -19,15 +19,15 @@ export function PeriodSelector({ month, year, onMonthChange, onYearChange }: Per
   return (
     <div className="bg-white p-8 rounded-3xl shadow-lg mb-8 border-2 border-primary-100">
       <div className="flex items-center gap-3 mb-6">
-        <div style={{ background: 'linear-gradient(to bottom right, #52275A, #6E3371)' }} className="w-12 h-12 rounded-2xl flex items-center justify-center">
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[#52275A] to-[#6E3371]">
           <Calendar className="text-white" size={24} />
         </div>
-        <h3 style={{ color: '#52275A' }} className="text-2xl font-bold">Newsletter Period</h3>
+        <h3 className="text-2xl font-bold text-[#52275A]">Newsletter Period</h3>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label style={{ color: '#52275A' }} className="block text-sm font-semibold mb-3">Month</label>
+          <label className="block text-sm font-semibold mb-3 text-[#52275A]">Month</label>
           <select
             value={month}
             onChange={(e) => onMonthChange(e.target.value)}
@@ -40,7 +40,7 @@ export function PeriodSelector({ month, year, onMonthChange, onYearChange }: Per
         </div>
         
         <div>
-          <label style={{ color: '#52275A' }} className="block text-sm font-semibold mb-3">Year</label>
+          <label className="block text-sm font-semibold mb-3 text-[#52275A]">Year</label>
           <input
             type="number"
             value={year}
