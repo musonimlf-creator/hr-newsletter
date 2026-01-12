@@ -70,20 +70,31 @@ export function BirthdayCard({ employees }: BirthdayCardProps) {
             <div className="relative shrink-0">
               <div className={`h-28 w-28 overflow-hidden rounded-3xl border-4 border-white shadow-xl bg-linear-to-br ${config.gradient} flex items-center justify-center p-1`}>
                 <div className="h-full w-full overflow-hidden rounded-2xl bg-white flex items-center justify-center">
-                  {e.photoUrl ? (
-                    // Image optimized with next/image
-                    <Image src={e.photoUrl} alt={e.name} width={112} height={112} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                  ) : (
-                    <span className={`text-4xl font-black bg-linear-to-br ${config.gradient} bg-clip-text text-transparent`}>{e.name.charAt(0)}</span>
-                  )}
+                  {(() => {
+                    const photo = (() => {
+                      try {
+                        // eslint-disable-next-line @typescript-eslint/no-var-requires
+                        const { safeImageSrc } = require('./imageUtils');
+                        return safeImageSrc(e.photoUrl);
+                      } catch {
+                        return undefined;
+                      }
+                    })();
+
+                    return photo ? (
+                      // Image optimized with next/image
+                      <Image src={photo} alt={e.name} width={112} height={112} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    ) : (
+                      <span className={`text-4xl font-black bg-linear-to-br ${config.gradient} bg-clip-text text-transparent`}>{e.name.charAt(0)}</span>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
 
             <div className="flex-1">
               <h3 className="font-serif text-3xl font-extrabold leading-tight text-slate-900 md:text-4xl">{e.name}</h3>
-              <p className="mt-2 text-lg font-medium text-slate-700">{e.position ? `They are ${e.position}` : 'Role not provided'}{e.department ? ` in ${e.department}.` : '.'}</p>
-
+              
               <p className="mt-6 text-xl leading-relaxed text-slate-600 font-medium">{generateBirthdayBlurb([e])}</p>
 
               <div className="mt-6 flex items-center gap-4">
@@ -124,12 +135,23 @@ export function BirthdayCard({ employees }: BirthdayCardProps) {
 
         <div className="max-h-64 overflow-auto">
           <ul className="space-y-3">
-            {employees.map(emp => (
+            {employees.map(emp => {
+                const photo = (() => {
+                  try {
+                    // eslint-disable-next-line @typescript-eslint/no-var-requires
+                    const { safeImageSrc } = require('./imageUtils');
+                    return safeImageSrc(emp.photoUrl);
+                  } catch {
+                    return undefined;
+                  }
+                })();
+
+                return (
               <li key={emp.id} className="flex items-center justify-between gap-4 rounded-2xl bg-white p-3 shadow-sm border border-slate-100">
                 <div className="flex items-center gap-4">
                   <div className="relative h-12 w-12 overflow-hidden rounded-lg bg-slate-100 flex items-center justify-center">
-                    {emp.photoUrl ? (
-                      <Image src={emp.photoUrl} alt={emp.name} width={48} height={48} className="rounded-lg object-cover" />
+                    {photo ? (
+                      <Image src={photo} alt={emp.name} width={48} height={48} className="rounded-lg object-cover" />
                     ) : (
                       <span className={`text-xl font-bold bg-linear-to-br ${config.gradient} bg-clip-text text-transparent`}>{emp.name.charAt(0)}</span>
                     )}
@@ -137,11 +159,12 @@ export function BirthdayCard({ employees }: BirthdayCardProps) {
 
                   <div>
                     <h4 className="text-base font-bold text-slate-800">{emp.name}</h4>
-                    <p className="mt-1 text-sm text-slate-700">{emp.position ? `${emp.position}` : 'Role not provided'}{emp.department ? ` in ${emp.department}` : ''}{emp.date ? ` • ${formatDateShort(emp.date)}` : ''}</p>
+                    <p className="mt-1 text-sm text-slate-700">{emp.position ? ` ${emp.position}` : 'Role not provided'}{emp.department ? ` in ${emp.department} Department` : ''}{emp.date ? ` and will be celebrating the birthday on ${formatDateShort(emp.date)}` : ''}</p>
                   </div>
                 </div>
               </li>
-            ))}
+            );
+          })}
           </ul>
         </div>
       </div>

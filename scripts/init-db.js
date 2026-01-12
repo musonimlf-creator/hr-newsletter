@@ -33,8 +33,13 @@ db.exec(`
     name TEXT,
     position TEXT,
     department TEXT,
+    from_position TEXT,
+    to_position TEXT,
+    previous_position TEXT,
+    previous_department TEXT,
     from_department TEXT,
     to_department TEXT,
+    blurb TEXT,
     date TEXT,
     achievement TEXT,
     photo_url TEXT,
@@ -59,6 +64,22 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_newsletter_entries_category ON newsletter_entries(category);
   CREATE INDEX IF NOT EXISTS idx_entry_comments_entry_id ON entry_comments(entry_id);
 `);
+
+// Add any missing columns for older databases
+const cols = db.prepare("PRAGMA table_info('newsletter_entries')").all().map(c => c.name);
+const needed = [
+  'from_position',
+  'to_position',
+  'previous_position',
+  'previous_department',
+  'blurb'
+];
+needed.forEach(col => {
+  if (!cols.includes(col)) {
+    console.log('Adding missing column:', col);
+    db.prepare(`ALTER TABLE newsletter_entries ADD COLUMN ${col} TEXT`).run();
+  }
+});
 
 console.log('Database initialized successfully!');
 db.close();

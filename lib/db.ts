@@ -2,15 +2,9 @@ import path from 'path';
 import fs from 'fs';
 
 // Lazy-load better-sqlite3 to allow graceful error messages when native bindings are missing
+// Do NOT require it at import time; instead require only when needed inside getDatabase().
 let BetterSqlite3: any = null;
-try {
-  // Use require() instead of static import so bundlers won't fail at build/import time
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  BetterSqlite3 = require('better-sqlite3');
-} catch (err) {
-  console.error('better-sqlite3 native bindings could not be loaded at import time:', err);
-  BetterSqlite3 = null;
-}
+
 
 // Database file path (stored in project root)
 const DB_PATH = path.join(process.cwd(), 'newsletter.db');
@@ -33,8 +27,35 @@ class InMemoryDB {
   _entryId = 1;
   _commentId = 1;
 
-  constructor() {
-    // nothing
+  constructor(initialState?: any) {
+    // If a seed JSON exists, initialize state from it so we have persistent sample data
+    if (initialState) {
+      this.newsletters = initialState.newsletters || [];
+      this.newsletter_entries = initialState.newsletter_entries || [];
+      this.entry_comments = initialState.entry_comments || [];
+      this._newsId = initialState._newsId || (this.newsletters.length + 1);
+      this._entryId = initialState._entryId || (this.newsletter_entries.length + 1);
+      this._commentId = initialState._commentId || (this.entry_comments.length + 1);
+    }
+  }
+
+  private saveSeed() {
+    try {
+      const seed = {
+        newsletters: this.newsletters,
+        newsletter_entries: this.newsletter_entries,
+        entry_comments: this.entry_comments,
+        _newsId: this._newsId,
+        _entryId: this._entryId,
+        _commentId: this._commentId
+      };
+      const outPath = path.join(process.cwd(), 'newsletter.seed.json');
+      fs.writeFileSync(outPath, JSON.stringify(seed, null, 2), 'utf8');
+      // eslint-disable-next-line no-console
+      console.info('Saved in-memory DB state to newsletter.seed.json');
+    } catch (err) {
+      console.warn('Failed to save in-memory DB seed file:', err instanceof Error ? err.message : String(err));
+    }
   }
 
   exec(_sql: string) {
@@ -52,6 +73,8 @@ class InMemoryDB {
           const id = this._newsId++;
           const now = new Date().toISOString();
           this.newsletters.push({ id, month, year, created_at: now, updated_at: now });
+          // persist state
+          try { this.saveSeed(); } catch (e) { /* ignore */ }
           return { lastInsertRowid: id };
         }
       };
@@ -71,7 +94,10 @@ class InMemoryDB {
       return {
         run: (id: number) => {
           const found = this.newsletters.find(n => n.id === id);
-          if (found) found.updated_at = new Date().toISOString();
+          if (found) {
+            found.updated_at = new Date().toISOString();
+            try { this.saveSeed(); } catch (e) { /* ignore */ }
+          }
           return { changes: found ? 1 : 0 };
         }
       };
@@ -111,11 +137,16 @@ class InMemoryDB {
           newsletter_id: number,
           category: string,
           entry_type: string,
-          name: string,
-          position: string,
-          department: string,
+          name: string | null,
+          position: string | null,
+          department: string | null,
+          previous_position: string | null,
+          previous_department: string | null,
+          from_position: string | null,
+          to_position: string | null,
           from_department: string | null,
           to_department: string | null,
+          blurb: string | null,
           date: string | null,
           achievement: string | null,
           photo_url: string | null,
@@ -132,8 +163,13 @@ class InMemoryDB {
             name,
             position,
             department,
+            previous_position,
+            previous_department,
+            from_position,
+            to_position,
             from_department,
             to_department,
+            blurb,
             date,
             achievement,
             photo_url,
@@ -141,6 +177,8 @@ class InMemoryDB {
             description,
             entry_order: Number(entry_order),
           });
+          // persist state
+          try { this.saveSeed(); } catch (e) { /* ignore */ }
           return { lastInsertRowid: id };
         }
       };
@@ -154,6 +192,7 @@ class InMemoryDB {
           this.newsletter_entries = this.newsletter_entries.filter(e => e.newsletter_id !== Number(newsletterId));
           // Cascade delete comments
           this.entry_comments = this.entry_comments.filter(c => !toDelete.includes(Number(c.entry_id)));
+          try { this.saveSeed(); } catch (e) { /* ignore */ }
           return { changes: toDelete.length };
         }
       };
@@ -166,6 +205,7 @@ class InMemoryDB {
           const id = this._commentId++;
           const date = new Date().toISOString();
           this.entry_comments.push({ id, entry_id: Number(entryId), user, content, created_at: date });
+          try { this.saveSeed(); } catch (e) { /* ignore */ }
           return { lastInsertRowid: id };
         }
       };
@@ -225,9 +265,32 @@ export function getDatabase(): any {
   // Use in-memory fallback in development or test if native bindings are missing or forced
   const forceMemory = process.env.USE_IN_MEMORY_DB === '1';
   const isDevOrTest = (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test');
+  // Attempt to lazy-load native module only when not explicitly forcing memory and not in dev/test
+  if (!BetterSqlite3 && !forceMemory && !isDevOrTest) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      BetterSqlite3 = require('better-sqlite3');
+    } catch (err: any) {
+      console.warn('better-sqlite3 native bindings could not be loaded:', err instanceof Error ? err.message : String(err));
+      BetterSqlite3 = null;
+    }
+  }
   if (!BetterSqlite3 && (isDevOrTest || forceMemory)) {
+    // If a seed JSON exists, load it so the in-memory DB is pre-populated persistently
+    const seedPath = path.join(process.cwd(), 'newsletter.seed.json');
+    let initialState = undefined as any;
+    try {
+      if (fs.existsSync(seedPath)) {
+        const raw = fs.readFileSync(seedPath, 'utf8');
+        initialState = JSON.parse(raw);
+        console.info('Loaded seed data from newsletter.seed.json');
+      }
+    } catch (err) {
+      console.warn('Failed to load seed file:', err instanceof Error ? err.message : String(err));
+    }
+
     console.warn('Using in-memory fallback database (better-sqlite3 not available).');
-    db = new InMemoryDB();
+    db = new InMemoryDB(initialState);
     // Initialize schema (no-op for in-memory)
     initializeSchema(db);
     return db;
@@ -257,13 +320,14 @@ export function getDatabase(): any {
     initializeSchema(db);
 
     return db;
-  } catch (err) {
-    console.error('better-sqlite3 failed to initialize:', err);
+  } catch (err: any) {
+    // Keep the console output concise; include a hint for resolving the issue
+    console.warn('better-sqlite3 failed to initialize:', err instanceof Error ? err.message : String(err));
     // If in dev/test or explicitly forced, fall back to in-memory DB
     const forceMemory = process.env.USE_IN_MEMORY_DB === '1';
     const isDevOrTest = (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test');
     if (isDevOrTest || forceMemory) {
-      console.warn('Falling back to in-memory DB due to native module init failure.');
+      console.warn('Falling back to in-memory DB due to native module init failure. To avoid this, install native bindings or set USE_IN_MEMORY_DB=0 to surface the error.');
       db = new InMemoryDB();
       initializeSchema(db);
       return db;

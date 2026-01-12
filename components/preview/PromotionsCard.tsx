@@ -34,15 +34,27 @@ export function PromotionsCard({ employees }: PromotionsCardProps) {
         <p className="mb-4 text-slate-600">{generatePromotionsBlurb(employees)}</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {employees.map(emp => (
-            <div key={emp.id} className="flex items-center gap-4 rounded-2xl bg-white p-3 shadow-sm border border-slate-100">
-              <div className="relative h-12 w-12 overflow-hidden rounded-lg bg-slate-100 flex items-center justify-center">
-                {emp.photoUrl ? (
-                  <Image src={emp.photoUrl} alt={emp.name} width={48} height={48} className="rounded-lg object-cover" />
-                ) : (
-                  <span className={`text-xl font-bold bg-linear-to-br ${config.gradient} bg-clip-text text-transparent`}>{emp.name.charAt(0)}</span>
-                )}
-              </div>
+          {employees.map(emp => {
+            const photo = (() => {
+              try {
+                // lazy require to avoid SSR window access
+                // eslint-disable-next-line @typescript-eslint/no-var-requires
+                const { safeImageSrc } = require('./imageUtils');
+                return safeImageSrc(emp.photoUrl);
+              } catch {
+                return undefined;
+              }
+            })();
+
+            return (
+              <div key={emp.id} className="flex items-center gap-4 rounded-2xl bg-white p-3 shadow-sm border border-slate-100">
+                <div className="relative h-12 w-12 overflow-hidden rounded-lg bg-slate-100 flex items-center justify-center">
+                  {photo ? (
+                    <Image src={photo} alt={emp.name} width={48} height={48} className="rounded-lg object-cover" />
+                  ) : (
+                    <span className={`text-xl font-bold bg-linear-to-br ${config.gradient} bg-clip-text text-transparent`}>{emp.name.charAt(0)}</span>
+                  )}
+                </div>
 
               <div className="flex-1">
                 <h4 className="text-base font-bold text-slate-800">{emp.name}</h4>
@@ -52,15 +64,21 @@ export function PromotionsCard({ employees }: PromotionsCardProps) {
                     const prevDept = emp.previousDepartment ?? (emp.department ?? 'department not provided');
                     const newPos = emp.position ?? 'role not provided';
                     const newDept = emp.department ?? 'department not provided';
-                    return `${emp.name} was ${prevPos}${emp.previousDepartment ? ` in ${prevDept}` : ''} and is now ${newPos}${emp.department ? ` in ${newDept}` : ''}.`;
+                    return `${emp.name} was ${prevPos}${emp.previousDepartment ? ` in ${prevDept}` : ''} and is now ${newPos}${emp.department ? ` in ${newDept}` : ''}`;
                   }
 
-                  // fallback: short summary
-                  return `${emp.name} — ${emp.position ? emp.position : 'role not provided'}${emp.department ? ` in ${emp.department}` : ''}`;
-                })()}</p>
+                  // fallback: short summary (keep date on its own line)
+                  const pos = emp.position ? emp.position : 'role not provided';
+                  const dept = emp.department ? ` in ${emp.department}` : '';
+                  return `${emp.name} — ${pos}${dept}`;
+                })()}
+                {emp.date && (
+                  <span className="mt-1 text-sm text-slate-500"> effective on {new Date(emp.date).toLocaleDateString()}</span>
+                )}</p>
               </div>
             </div>
-          ))}
+          );
+        })}
         </div>
       </div>
     </div>

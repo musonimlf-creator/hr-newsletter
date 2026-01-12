@@ -39,8 +39,8 @@ export function Header({
               <Image
                 src="/microloan-logo.png"
                 alt="Microloan Foundation"
-                width={164}
-                height={164}
+                width={200}
+                height={184}
                 className="object-contain rounded-lg"
               />
             </div>

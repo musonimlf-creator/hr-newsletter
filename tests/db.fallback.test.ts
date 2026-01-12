@@ -33,9 +33,9 @@ describe('InMemoryDB fallback', () => {
     const newsletterId = n.lastInsertRowid;
 
     const entry = db.prepare(`INSERT INTO newsletter_entries (
-      newsletter_id, category, entry_type, name, position, department, from_department, to_department, date, achievement, photo_url, title, description, entry_order
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-      .run(newsletterId, 'newHires', 'employee', 'Alice', 'Engineer', 'R&D', null, null, '2026-01-01', null, null, null, null, 0);
+      newsletter_id, category, entry_type, name, position, department, previous_position, previous_department, from_position, to_position, from_department, to_department, blurb, date, achievement, photo_url, title, description, entry_order
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      .run(newsletterId, 'newHires', 'employee', 'Alice', 'Engineer', 'R&D', null, null, null, null, null, null, null, '2026-01-01', null, null, null, null, 0);
 
     expect(entry.lastInsertRowid).toBeDefined();
 
@@ -57,8 +57,8 @@ describe('InMemoryDB fallback', () => {
 
     expect(() => {
       const tx = db.transaction(() => {
-        db.prepare('INSERT INTO newsletter_entries (newsletter_id, category, entry_type, name, position, department, from_department, to_department, date, achievement, photo_url, title, description, entry_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
-          .run(newsletterId, 'newHires', 'employee', 'Charlie', 'Designer', 'UX', null, null, '2026-02-01', null, null, null, null, 0);
+        db.prepare('INSERT INTO newsletter_entries (newsletter_id, category, entry_type, name, position, department, previous_position, previous_department, from_position, to_position, from_department, to_department, blurb, date, achievement, photo_url, title, description, entry_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+          .run(newsletterId, 'newHires', 'employee', 'Charlie', 'Designer', 'UX', null, null, null, null, null, null, null, '2026-02-01', null, null, null, null, 0);
         throw new Error('fail');
       });
       tx();

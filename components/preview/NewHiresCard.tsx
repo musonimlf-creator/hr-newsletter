@@ -35,22 +35,40 @@ export function NewHiresCard({ employees }: NewHiresCardProps) {
         <p className="mb-4 text-slate-600">{generateNewHiresBlurb(employees)}</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {employees.map(emp => (
-            <div key={emp.id} className="flex items-center gap-4 rounded-2xl bg-white p-3 shadow-sm border border-slate-100">
-              <div className="relative h-12 w-12 overflow-hidden rounded-lg bg-slate-100 flex items-center justify-center">
-                {emp.photoUrl ? (
-                  <Image src={emp.photoUrl} alt={emp.name} width={48} height={48} className="rounded-lg object-cover" />
-                ) : (
-                  <span className={`text-xl font-bold bg-linear-to-br ${config.gradient} bg-clip-text text-transparent`}>{emp.name.charAt(0)}</span>
-                )}
-              </div>
+          {employees.map(emp => {
+            const photo = (() => {
+              try {
+                // lazy require to avoid SSR window access
+                // eslint-disable-next-line @typescript-eslint/no-var-requires
+                const { safeImageSrc } = require('./imageUtils');
+                return safeImageSrc(emp.photoUrl);
+              } catch {
+                return undefined;
+              }
+            })();
+
+            return (
+              <div key={emp.id} className="flex items-center gap-4 rounded-2xl bg-white p-3 shadow-sm border border-slate-100">
+                <div className="relative h-12 w-12 overflow-hidden rounded-lg bg-slate-100 flex items-center justify-center">
+                  {photo ? (
+                    <Image src={photo} alt={emp.name} width={48} height={48} className="rounded-lg object-cover" />
+                  ) : (
+                    <span className={`text-xl font-bold bg-linear-to-br ${config.gradient} bg-clip-text text-transparent`}>{emp.name.charAt(0)}</span>
+                  )}
+                </div>
 
               <div className="flex-1">
                 <h4 className="text-base font-bold text-slate-800">{emp.name}</h4>
-                <p className="mt-1 text-sm text-slate-700">{emp.position ? `They join us as ${emp.position}` : 'Role not provided'}{emp.department ? ` in ${emp.department}.` : '.'}</p>
+                <p className="mt-1 text-sm text-slate-700">{emp.position ? `is joining us as ${emp.position}` : 'Role not provided'}{emp.department ? ` in ${emp.department} department.` : '.'}</p>
+                {emp.blurb && (
+                  <div className="mt-2">
+                    <p className="text-sm leading-relaxed text-slate-600">{emp.blurb}</p>
+                  </div>
+                )}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

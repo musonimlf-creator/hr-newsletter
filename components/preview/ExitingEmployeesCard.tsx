@@ -34,11 +34,23 @@ export function ExitingEmployeesCard({ employees }: ExitingEmployeesCardProps) {
         <p className="mb-4 text-slate-600">{generateExitingBlurb(employees)}</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {employees.map(emp => (
+          {employees.map(emp => {
+            const photo = (() => {
+              try {
+                // lazy require to avoid SSR window access
+                // eslint-disable-next-line @typescript-eslint/no-var-requires
+                const { safeImageSrc } = require('./imageUtils');
+                return safeImageSrc(emp.photoUrl);
+              } catch {
+                return undefined;
+              }
+            })();
+
+            return (
             <div key={emp.id} className="flex items-center gap-4 rounded-2xl bg-white p-3 shadow-sm border border-slate-100">
               <div className="relative h-12 w-12 overflow-hidden rounded-lg bg-slate-100 flex items-center justify-center">
-                {emp.photoUrl ? (
-                  <Image src={emp.photoUrl} alt={emp.name} width={48} height={48} className="rounded-lg object-cover" />
+                {photo ? (
+                  <Image src={photo} alt={emp.name} width={48} height={48} className="rounded-lg object-cover" />
                 ) : (
                   <span className={`text-xl font-bold bg-linear-to-br ${config.gradient} bg-clip-text text-transparent`}>{emp.name.charAt(0)}</span>
                 )}

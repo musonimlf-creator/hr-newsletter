@@ -29,4 +29,18 @@ describe('EmployeeCard component', () => {
     const html = renderToStaticMarkup(<EmployeeCard employee={emp} type="transfers" showDate={false} />);
     expect(html).toContain('was Analyst in Finance and is now Senior Analyst in Finance');
   });
+
+  it('does not throw and falls back for malformed photoUrl', () => {
+    const emp = sampleEmployee({ photoUrl: 'http://%zz' });
+    expect(() => renderToStaticMarkup(<EmployeeCard employee={emp} />)).not.toThrow();
+    const html = renderToStaticMarkup(<EmployeeCard employee={emp} />);
+    expect(html).toContain('A');
+  });
+
+  it('blocks javascript: URLs and falls back to initial', () => {
+    const emp = sampleEmployee({ photoUrl: 'javascript:alert(1)' });
+    expect(() => renderToStaticMarkup(<EmployeeCard employee={emp} />)).not.toThrow();
+    const html = renderToStaticMarkup(<EmployeeCard employee={emp} />);
+    expect(html).toContain('A');
+  });
 });

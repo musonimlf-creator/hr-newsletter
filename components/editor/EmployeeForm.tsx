@@ -136,6 +136,25 @@ export function EmployeeForm({
             />
           </>
         )}
+
+        {/* New hires: brief biography to show on cards */}
+        {category === 'newHires' && (
+          <textarea
+            placeholder="Brief biography (optional) - a short sentence or two that will appear on the new hire card"
+            value={(employee.blurb as string) || ''}
+            onChange={(e) => onUpdate(employee.id, 'blurb', e.target.value)}
+            className="border border-gray-300 rounded-xl px-4 py-3 w-full col-span-1 md:col-span-2 h-24 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          />
+        )}
+
+        {category === 'exitingEmployees' && (
+          <textarea
+            placeholder="Farewell message (optional) - brief message to appear on the exiting employee card"
+            value={(employee.blurb as string) || ''}
+            onChange={(e) => onUpdate(employee.id, 'blurb', e.target.value)}
+            className="border border-gray-300 rounded-xl px-4 py-3 w-full col-span-1 md:col-span-2 h-24 focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all"
+          />
+        )}
       </div>
     {/* Comments Section */}
     <div className="mt-4 border-t border-primary-100 pt-4">

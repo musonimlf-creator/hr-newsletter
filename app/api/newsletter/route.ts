@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDatabase } from '@/lib/db';
-import type { NewsletterData, EmployeeComment, Employee } from '@/types/newsletter';
+import type { NewsletterData, EmployeeComment, Employee, CategoryKey } from '@/types/newsletter';
 
 function safeString(v: unknown) {
   return v === undefined || v === null ? '' : String(v);
@@ -89,6 +89,8 @@ export async function GET(request: NextRequest) {
 
     entries.forEach((entry) => {
       const id = Number(entry['id']);
+      const category = safeString(entry['category']) as CategoryKey;
+
       const entryData: Partial<Employee> & { id: string; comments?: EmployeeComment[] } = {
         id: safeString(entry['id']),
         name: safeString(entry['name']),
@@ -96,18 +98,17 @@ export async function GET(request: NextRequest) {
         department: safeString(entry['department']),
         photoUrl: safeString(entry['photo_url']),
         date: safeString(entry['date']),
+        blurb: safeString(entry['blurb']),
+        achievement: safeString(entry['achievement']),
       };
 
 
       if (entry['from_department']) entryData.fromDepartment = safeString(entry['from_department']);
       if (entry['to_department']) entryData.toDepartment = safeString(entry['to_department']);
-      if (entry['achievement']) entryData.achievement = safeString(entry['achievement']);
-      if (commentsByEntry[id]) {
-        entryData.comments = commentsByEntry[id];
-      }
-
-      const category = safeString(entry['category']) as keyof NewsletterData;
-
+      if (entry['from_position']) entryData.fromPosition = safeString(entry['from_position']);
+      if (entry['to_position']) entryData.toPosition = safeString(entry['to_position']);
+      if (entry['previous_position']) entryData.previousPosition = safeString(entry['previous_position']);
+      if (entry['previous_department']) entryData.previousDepartment = safeString(entry['previous_department']);
       if (category === 'events') {
         newsletterData.events.push({
           id: safeString(entry['id']),
@@ -196,8 +197,9 @@ export async function POST(request: NextRequest) {
       const insertEntry = db.prepare(`
         INSERT INTO newsletter_entries (
           newsletter_id, category, entry_type, name, position, department,
-          from_department, to_department, date, achievement, photo_url, title, description, entry_order
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          previous_position, previous_department, from_position, to_position, from_department, to_department, blurb,
+          date, achievement, photo_url, title, description, entry_order
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
 
       let order = 0;
@@ -217,8 +219,13 @@ export async function POST(request: NextRequest) {
             emp.name || '',
             emp.position || '',
             emp.department || '',
+            emp.previousPosition || null,
+            emp.previousDepartment || null,
+            emp.fromPosition || null,
+            emp.toPosition || null,
             emp.fromDepartment || null,
             emp.toDepartment || null,
+            emp.blurb || null,
             emp.date || null,
             emp.achievement || null,
             emp.photoUrl || null,
@@ -235,8 +242,13 @@ export async function POST(request: NextRequest) {
               emp.name || '',
               emp.position || '',
               emp.department || '',
+              emp.previousPosition || null,
+              emp.previousDepartment || null,
+              emp.fromPosition || null,
+              emp.toPosition || null,
               emp.fromDepartment || null,
               emp.toDepartment || null,
+              emp.blurb || null,
               emp.date || null,
               emp.achievement || null,
               emp.photoUrl || null,
@@ -265,13 +277,19 @@ export async function POST(request: NextRequest) {
             newsletterId,
             'events',
             'event',
-            null,
-            null,
-            null,
-            null,
-            null,
-            event.date || null,
-            null,
+            null, // name
+            null, // position
+            null, // department
+            null, // previous_position
+            null, // previous_department
+            null, // from_position
+            null, // to_position
+            null, // from_department
+            null, // to_department
+            null, // blurb
+            event.date || null, // date
+            null, // achievement
+            null, // photo_url
             event.title || '',
             event.description || '',
             order++
