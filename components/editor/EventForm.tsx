@@ -12,11 +12,11 @@ interface EventFormProps {
 
 export function EventForm({ event, onUpdate, onRemove }: EventFormProps) {
   return (
-    <div style={{ borderColor: '#C2A2CB' }} className="bg-white backdrop-blur-sm p-5 rounded-2xl border-2 mb-4 hover:shadow-lg transition-all duration-300" onMouseEnter={(e) => e.currentTarget.style.borderColor = '#6E3371'} onMouseLeave={(e) => e.currentTarget.style.borderColor = '#C2A2CB'}>
+    <div className="bg-white backdrop-blur-sm p-5 rounded-2xl border-2 border-[#C2A2CB] mb-4 hover:border-[#6E3371] hover:shadow-lg transition-all duration-300">
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-2">
-          <Calendar style={{ color: '#52275A' }} size={20} />
-          <span style={{ color: '#52275A' }} className="text-sm font-medium">Event Details</span>
+          <Calendar className="text-[#52275A]" size={20} />
+          <span className="text-sm font-medium text-[#52275A]">Event Details</span>
         </div>
         <button
           onClick={() => onRemove(event.id)}

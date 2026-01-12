@@ -32,10 +32,11 @@ export async function POST(request: NextRequest) {
         date: new Date().toISOString(),
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error adding comment:', error);
+    const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: 'Failed to add comment', details: error.message },
+      { error: 'Failed to add comment', details: message },
       { status: 500 }
     );
   }

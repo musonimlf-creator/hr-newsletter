@@ -3,9 +3,13 @@
 import React, { useState } from 'react';
 import { 
   Users, TrendingUp, Briefcase, Cake, Clock, 
-  Calendar, Award, Star, LogOut, Edit, Sparkles, 
+  Calendar, Award, Star, LogOut, Edit, Sparkles, MapPin, 
   CheckCircle, X 
 } from 'lucide-react';
+
+import { CARD_CONFIG } from '@/components/preview/cardConfig';
+import { NewHiresCard } from '@/components/preview/NewHiresCard';
+import { PromotionsCard } from '@/components/preview/PromotionsCard';
 
 import { Header } from '@/components/Header';
 import { StatsCards } from '@/components/StatsCards';
@@ -13,6 +17,7 @@ import { PeriodSelector } from '@/components/PeriodSelector';
 import { EditorSection } from '@/components/editor/EditorSection';
 import { PreviewSection } from '@/components/preview/PreviewSection';
 import { EmployeeCard } from '@/components/preview/EmployeeCard';
+import { BirthdayCard } from '@/components/preview/BirthdayCard';
 import { useNewsletterData } from '@/hooks/useNewsletterData';
 import type { ViewMode } from '@/types/newsletter';
 
@@ -100,7 +105,7 @@ export default function Home() {
         <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p style={{ color: '#52275A' }} className="font-semibold text-lg">Loading newsletter data...</p>
+            <p className="font-semibold text-lg text-[#52275A]">Loading newsletter data...</p>
           </div>
         </div>
       )}
@@ -182,8 +187,7 @@ export default function Home() {
                 <button
                   type="submit"
                   disabled={isLoggingIn}
-                  className="px-4 py-2 rounded-xl text-sm font-bold text-white shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{ backgroundColor: '#52275A' }}
+                  className="px-4 py-2 rounded-xl text-sm font-bold text-white shadow-md disabled:opacity-50 disabled:cursor-not-allowed bg-[#52275A]"
                 >
                   {isLoggingIn ? 'Verifying...' : 'Unlock Editor'}
                 </button>
@@ -199,8 +203,7 @@ export default function Home() {
           <button
             onClick={undo}
             disabled={!canUndo}
-            style={canUndo ? { backgroundColor: '#52275A', color: '#FFFFFF' } : { backgroundColor: '#C2A2CB', color: '#52275A', opacity: 0.6 }}
-            className={`px-4 py-2 rounded-lg font-bold transition-all shadow-xl flex items-center gap-2 ${!canUndo ? 'cursor-not-allowed' : 'hover:opacity-90'}`}
+            className={`px-4 py-2 rounded-lg font-bold transition-all shadow-xl flex items-center gap-2 ${!canUndo ? 'bg-[#C2A2CB] text-[#52275A] opacity-60 cursor-not-allowed' : 'bg-[#52275A] text-white hover:opacity-90'}`}
             type="button"
             title="Undo"
           >
@@ -210,8 +213,7 @@ export default function Home() {
           <button
             onClick={redo}
             disabled={!canRedo}
-            style={canRedo ? { backgroundColor: '#FFD058', color: '#52275A' } : { backgroundColor: '#FFF9E5', color: '#6E3371', opacity: 0.6 }}
-            className={`px-4 py-2 rounded-lg font-bold transition-all shadow-xl flex items-center gap-2 ${!canRedo ? 'cursor-not-allowed' : 'hover:opacity-90'}`}
+            className={`px-4 py-2 rounded-lg font-bold transition-all shadow-xl flex items-center gap-2 ${!canRedo ? 'bg-[#C2A2CB] text-[#52275A] opacity-60 cursor-not-allowed' : 'bg-[#52275A] text-white hover:opacity-90'}`}
             type="button"
             title="Redo"
           >
@@ -351,8 +353,7 @@ export default function Home() {
               <div className="flex justify-center mt-8">
                 <button
                   onClick={clearAllData}
-                  style={{ backgroundColor: '#52275A', color: '#FFFFFF', borderColor: '#6E3371' }}
-                  className="px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-xl transition-all border-2 hover:opacity-90"
+                  className="px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-xl transition-all border-2 hover:opacity-90 bg-[#52275A] text-white border-[#6E3371]"
                   type="button"
                 >
                   <X size={20} />
@@ -364,16 +365,15 @@ export default function Home() {
         ) : (
           <>
             {getTotalEntries() === 0 ? (
-              <div style={{ backgroundColor: '#F7EED7', borderColor: '#6E3371' }} className="p-16 rounded-3xl shadow-xl text-center border-2 border-dashed">
-                <div style={{ background: 'linear-gradient(to bottom right, #52275A, #FFD058)' }} className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+              <div className="p-16 rounded-3xl shadow-xl text-center border-2 border-dashed bg-[#F7EED7] border-[#6E3371]">
+                <div className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl bg-gradient-to-br from-[#52275A] to-[#FFD058]">
                   <Sparkles className="text-white" size={48} />
                 </div>
-                <h3 style={{ color: '#52275A' }} className="text-2xl font-bold mb-3">No Content Yet</h3>
-                <p style={{ color: '#6E3371' }} className="mb-6 font-medium">Start by switching to Edit mode and adding your first entry!</p>
+                <h3 className="text-2xl font-bold mb-3 text-[#52275A]">No Content Yet</h3>
+                <p className="mb-6 font-medium text-[#6E3371]">Start by switching to Edit mode and adding your first entry!</p>
                 <button
                   onClick={() => setCurrentView('editor')}
-                  style={{ background: 'linear-gradient(to right, #52275A, #6E3371)', color: '#FFFFFF', borderColor: '#6E3371' }}
-                  className="px-8 py-3 rounded-2xl font-bold inline-flex items-center gap-2 shadow-xl border-2 hover:opacity-90"
+                  className="px-8 py-3 rounded-2xl font-bold inline-flex items-center gap-2 shadow-xl border-2 hover:opacity-90 bg-gradient-to-r from-[#52275A] to-[#6E3371] text-white border-[#6E3371]"
                   type="button"
                 >
                   <Edit size={20} />
@@ -385,21 +385,13 @@ export default function Home() {
                 {/* Preview Sections */}
                 {newsletterData.newHires.length > 0 && (
                   <PreviewSection title="Welcome to Our New Hires!" icon={Users} gradient="from-blue-500 to-blue-700">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      {newsletterData.newHires.slice().reverse().map(emp => (
-                        <EmployeeCard key={emp.id} employee={emp} />
-                      ))}
-                    </div>
+                    <NewHiresCard employees={newsletterData.newHires.slice().reverse()} />
                   </PreviewSection>
                 )}
 
                 {newsletterData.promotions.length > 0 && (
                   <PreviewSection title="Congratulations on Your Promotions!" icon={TrendingUp} gradient="from-green-500 to-green-700">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      {newsletterData.promotions.slice().reverse().map(emp => (
-                        <EmployeeCard key={emp.id} employee={emp} />
-                      ))}
-                    </div>
+                    <PromotionsCard employees={newsletterData.promotions.slice().reverse()} />
                   </PreviewSection>
                 )}
 
@@ -407,7 +399,7 @@ export default function Home() {
                   <PreviewSection title="Employee Transfers" icon={Briefcase} gradient="from-purple-500 to-purple-700">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       {newsletterData.transfers.slice().reverse().map(emp => (
-                        <EmployeeCard key={emp.id} employee={emp} />
+                        <EmployeeCard key={emp.id} employee={emp} type="transfers" />
                       ))}
                     </div>
                   </PreviewSection>
@@ -415,11 +407,7 @@ export default function Home() {
 
                 {newsletterData.birthdays.length > 0 && (
                   <PreviewSection title="Upcoming Birthdays 🎂" icon={Cake} gradient="from-pink-500 to-pink-700">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      {newsletterData.birthdays.slice().reverse().map(emp => (
-                        <EmployeeCard key={emp.id} employee={emp} />
-                      ))}
-                    </div>
+                    <BirthdayCard employees={newsletterData.birthdays.slice().reverse()} />
                   </PreviewSection>
                 )}
 
@@ -427,7 +415,7 @@ export default function Home() {
                   <PreviewSection title="Work Anniversaries" icon={Clock} gradient="from-indigo-500 to-indigo-700">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       {newsletterData.anniversaries.slice().reverse().map(emp => (
-                        <EmployeeCard key={emp.id} employee={emp} />
+                        <EmployeeCard key={emp.id} employee={emp} type="anniversaries" />
                       ))}
                     </div>
                   </PreviewSection>
@@ -437,22 +425,39 @@ export default function Home() {
                   <PreviewSection title="Upcoming Events" icon={Calendar} gradient="from-orange-500 to-orange-700">
                     <div className="space-y-4">
                       {newsletterData.events.slice().reverse().map(event => (
-                        <div key={event.id} className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all border-2 border-orange-100">
-                          <div className="flex items-start gap-6">
-                            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center flex-shrink-0 shadow-md">
-                              <Calendar className="text-white" size={32} />
+                        <div key={event.id} className={`group relative flex flex-col overflow-hidden rounded-[2.5rem] border-2 ${CARD_CONFIG.events.theme} transition-all duration-500 hover:shadow-2xl hover:-translate-y-2`}>
+                          <div className={`h-2 w-full bg-linear-to-r ${CARD_CONFIG.events.gradient}`}></div>
+                          <div className={`absolute top-6 right-6 z-10 flex items-center gap-2 rounded-full px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-white bg-linear-to-r ${CARD_CONFIG.events.gradient} shadow-lg shadow-black/10`}>
+                            {CARD_CONFIG.events.icon}
+                            <span>{CARD_CONFIG.events.label}</span>
+                          </div>
+
+                          <div className="flex items-start gap-6 p-8">
+                            <div className={`flex h-20 w-20 items-center justify-center rounded-3xl text-white bg-linear-to-br ${CARD_CONFIG.events.gradient} shrink-0 shadow-md`}>
+                              <Calendar size={32} />
                             </div>
-                            <div className="flex-1 pt-1">
-                              <h4 className="font-serif font-bold text-2xl text-gray-900 mb-2">{event.title}</h4>
-                              <p className="text-orange-600 font-medium text-sm mb-3 flex items-center gap-2">
-                                <Calendar size={16} />
-                                {new Date(event.date).toLocaleDateString('en-US', {
-                                  month: 'long',
-                                  day: 'numeric',
-                                  year: 'numeric'
-                                })}
-                              </p>
-                              <p className="text-gray-700 leading-relaxed text-lg">{event.description}</p>
+
+                            <div className="flex-1">
+                              <h3 className="font-serif font-extrabold text-4xl text-slate-900 mb-2">{event.title}</h3>
+
+                              <div className="mt-6 flex flex-wrap gap-6">
+                                <div className="flex items-center gap-3 rounded-xl bg-white px-4 py-2 shadow-sm border border-slate-100">
+                                  <div className={`flex h-8 w-8 items-center justify-center rounded-lg text-white bg-linear-to-br ${CARD_CONFIG.events.gradient}`}>
+                                    <Calendar size={16} />
+                                  </div>
+                                  <span className="text-sm font-bold text-slate-700">{new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                                </div>
+                                {event.location && (
+                                  <div className="flex items-center gap-3 rounded-xl bg-white px-4 py-2 shadow-sm border border-slate-100">
+                                    <div className={`flex h-8 w-8 items-center justify-center rounded-lg text-white bg-linear-to-br ${CARD_CONFIG.events.gradient}`}>
+                                      <MapPin size={16} />
+                                    </div>
+                                    <span className="text-sm font-bold text-slate-700">{event.location}</span>
+                                  </div>
+                                )}
+                              </div>
+
+                              <p className="mt-8 text-xl leading-relaxed text-slate-600 font-medium">{event.description}</p>
                             </div>
                           </div>
                         </div>
@@ -463,13 +468,13 @@ export default function Home() {
 
                 {newsletterData.bestEmployee && (
                   <PreviewSection title="Employee of the Month ⭐" icon={Award} gradient="from-yellow-400 to-yellow-600">
-                    <EmployeeCard employee={newsletterData.bestEmployee} showDate={false} />
+                    <EmployeeCard employee={newsletterData.bestEmployee} showDate={false} type="bestEmployee" />
                   </PreviewSection>
                 )}
 
                 {newsletterData.bestPerformer && (
                   <PreviewSection title="Best Performer 🏆" icon={Star} gradient="from-amber-500 to-amber-700">
-                    <EmployeeCard employee={newsletterData.bestPerformer} showDate={false} />
+                    <EmployeeCard employee={newsletterData.bestPerformer} showDate={false} type="bestPerformer" />
                   </PreviewSection>
                 )}
 
@@ -477,7 +482,7 @@ export default function Home() {
                   <PreviewSection title="Farewell & Best Wishes" icon={LogOut} gradient="from-gray-500 to-gray-700">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       {newsletterData.exitingEmployees.slice().reverse().map(emp => (
-                        <EmployeeCard key={emp.id} employee={emp} />
+                        <EmployeeCard key={emp.id} employee={emp} type="exitingEmployees" />
                       ))}
                     </div>
                   </PreviewSection>

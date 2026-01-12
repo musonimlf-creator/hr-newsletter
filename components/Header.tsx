@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { Calendar, Download, Edit, Eye, Save, Sparkles } from 'lucide-react';
 import type { ViewMode } from '@/types/newsletter';
 
@@ -28,24 +29,25 @@ export function Header({
   onRequestLogin,
 }: HeaderProps) {
   return (
-    <div style={{ backgroundColor: '#563061' }} className="text-white shadow-2xl relative overflow-hidden">
+    <div className="text-white shadow-2xl relative overflow-hidden bg-[#563061]">
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNnoiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9Ii4xIi8+PC9nPjwvc3ZnPg==')] opacity-10"></div>
       
       <div className="max-w-7xl mx-auto px-6 py-10 relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="flex items-center gap-4">
             <div>
-              <img
+              <Image
                 src="/microloan-logo.png"
                 alt="Microloan Foundation"
-                className="h-full w-full object-contain rounded-lg"
-                style={{background: 'transparent'}}
+                width={200}
+                height={184}
+                className="object-contain rounded-lg"
               />
             </div>
             <div>
               <h2 className="text-2xl font-bold mb-2 drop-shadow-lg text-white leading-tight">Newsletters</h2>
               <p className="text-white text-lm font-semibold flex items-center gap-2">
-                <Calendar size={20} style={{ color: '#FFD058' }} />
+                <Calendar size={20} className="text-[#FFD058]" />
                 {month} {year}
               </p>
               {currentView === 'editor' && (
@@ -61,16 +63,14 @@ export function Header({
               <>
                 <button
                   onClick={onSave}
-                  style={{ backgroundColor: '#FFD058', color: '#52275A', borderColor: '#FFC700' }}
-                  className="border-2 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-xl transition-all transform hover:scale-105 hover:opacity-90"
+                  className="border-2 border-[#FFC700] px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-xl transition-all transform hover:scale-105 hover:opacity-90 bg-[#FFD058] text-[#52275A]"
                 >
                   <Save size={20} />
                   Save
                 </button>
                 <button
                   onClick={onViewChange}
-                  style={{ backgroundColor: '#FFFFFF', color: '#52275A', borderColor: '#C2A2CB' }}
-                  className="px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-xl transition-all transform hover:scale-105 border-2 hover:bg-gray-50"
+                  className="px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-xl transition-all transform hover:scale-105 border-2 border-[#C2A2CB] bg-white text-[#52275A]"
                 >
                   {currentView === 'editor' ? <Eye size={20} /> : <Edit size={20} />}
                   {currentView === 'editor' ? 'Preview' : 'Edit'}
@@ -78,8 +78,7 @@ export function Header({
                 {currentView === 'preview' && (
                   <button
                     onClick={onExport}
-                    style={{ background: 'linear-gradient(to right, #FFD058, #FFC700)', color: '#52275A', borderColor: '#FFC700' }}
-                    className="px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-xl transition-all transform hover:scale-105 border-2 hover:opacity-90"
+                    className="px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-xl transition-all transform hover:scale-105 border-2 border-[#FFC700] bg-gradient-to-r from-[#FFD058] to-[#FFC700] text-[#52275A]"
                   >
                     <Download size={20} />
                     Export PDF
@@ -90,8 +89,7 @@ export function Header({
               <button
                 type="button"
                 onClick={onRequestLogin}
-                style={{ backgroundColor: '#FFD058', color: '#52275A', borderColor: '#FFC700' }}
-                className="border-2 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-xl transition-all transform hover:scale-105 hover:opacity-90"
+                className="border-2 border-[#FFC700] px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-xl transition-all transform hover:scale-105 hover:opacity-90 bg-[#FFD058] text-[#52275A]"
               >
                 <Sparkles size={20} />
                 HR / Admin Login

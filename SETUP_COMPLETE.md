@@ -3,7 +3,7 @@
 ## 🎉 Your System is Ready!
 
 The HR Newsletter System is now **fully operational** with:
-- ✅ **SQLite Database** - Persistent data storage
+- ✅ **SQLite Database** - Persistent data storage (falls back to an in-memory DB with `newsletter.seed.json` on dev when native bindings are unavailable)
 - ✅ **Role-Based Access** - Staff (Preview) vs HR/Admin (Edit)
 - ✅ **Complete API** - RESTful endpoints for all operations
 - ✅ **Production Ready** - Builds successfully, ready to deploy
@@ -33,9 +33,10 @@ Navigate to: **http://localhost:3019**
 
 ## 📊 Database
 
-- **Location**: `newsletter.db` (in project root)
-- **Auto-created**: Database is created automatically on first use
-- **Backup**: Simply copy `newsletter.db` file to backup
+- **Preferred (SQLite)**: `newsletter.db` (in project root). This is the on-disk persistent store when `better-sqlite3` native bindings are available.
+- **Fallback (Dev)**: If native bindings aren't present (common in fresh setup), the app will use an in-memory DB and persist state to `newsletter.seed.json` so data survives dev server restarts.
+- **Auto-created**: The on-disk DB is created automatically on first use when `better-sqlite3` works; otherwise run `pnpm --filter hr-newsletter exec node scripts/seed-json.js` to create a sample `newsletter.seed.json`.
+- **Backup**: Copy `newsletter.db` or `newsletter.seed.json` as appropriate to back up data.
 
 ## 🗄️ Database Schema
 

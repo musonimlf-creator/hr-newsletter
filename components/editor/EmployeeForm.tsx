@@ -22,13 +22,13 @@ export function EmployeeForm({
   onRemove
 }: EmployeeFormProps) {
   return (
-    <div style={{ borderColor: '#C2A2CB' }} className="bg-white backdrop-blur-sm p-5 rounded-2xl border-2 mb-4 hover:shadow-lg transition-all duration-300" onMouseEnter={(e) => e.currentTarget.style.borderColor = '#6E3371'} onMouseLeave={(e) => e.currentTarget.style.borderColor = '#C2A2CB'}>
+    <div className="bg-white backdrop-blur-sm p-5 rounded-2xl border-2 border-[#C2A2CB] mb-4 hover:border-[#6E3371] hover:shadow-lg transition-all duration-300">
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-2">
-          <div style={{ background: 'linear-gradient(to bottom right, #52275A, #FFD058)' }} className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold">
+          <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold bg-gradient-to-br from-[#52275A] to-[#FFD058]">
             {employee.name ? employee.name.charAt(0).toUpperCase() : '?'}
           </div>
-          <span style={{ color: '#52275A' }} className="text-sm font-medium">Employee Details</span>
+          <span className="text-sm font-medium text-[#52275A]">Employee Details</span>
         </div>
         <button
           onClick={() => onRemove(employee.id)}
@@ -79,6 +79,20 @@ export function EmployeeForm({
           <>
             <input
               type="text"
+              placeholder="From Position (optional)"
+              value={(employee.fromPosition as string) || ''}
+              onChange={(e) => onUpdate(employee.id, 'fromPosition', e.target.value)}
+              className="border border-gray-300 rounded-xl px-4 py-3 w-full focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+            />
+            <input
+              type="text"
+              placeholder="To Position (optional)"
+              value={(employee.toPosition as string) || ''}
+              onChange={(e) => onUpdate(employee.id, 'toPosition', e.target.value)}
+              className="border border-gray-300 rounded-xl px-4 py-3 w-full focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+            />
+            <input
+              type="text"
               placeholder="From Department"
               value={employee.fromDepartment || ''}
               onChange={(e) => onUpdate(employee.id, 'fromDepartment', e.target.value)}
@@ -100,6 +114,45 @@ export function EmployeeForm({
             value={employee.achievement || ''}
             onChange={(e) => onUpdate(employee.id, 'achievement', e.target.value)}
             className="border border-gray-300 rounded-xl px-4 py-3 w-full col-span-1 md:col-span-2 h-24 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+          />
+        )}
+
+        {/* Promotions: optionally capture previous position/department to render explicit prior→now sentences */}
+        {category === 'promotions' && (
+          <>
+            <input
+              type="text"
+              placeholder="Previous Position (optional)"
+              value={(employee.previousPosition as string) || ''}
+              onChange={(e) => onUpdate(employee.id, 'previousPosition', e.target.value)}
+              className="border border-gray-300 rounded-xl px-4 py-3 w-full focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+            />
+            <input
+              type="text"
+              placeholder="Previous Department (optional)"
+              value={(employee.previousDepartment as string) || ''}
+              onChange={(e) => onUpdate(employee.id, 'previousDepartment', e.target.value)}
+              className="border border-gray-300 rounded-xl px-4 py-3 w-full focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+            />
+          </>
+        )}
+
+        {/* New hires: brief biography to show on cards */}
+        {category === 'newHires' && (
+          <textarea
+            placeholder="Brief biography (optional) - a short sentence or two that will appear on the new hire card"
+            value={(employee.blurb as string) || ''}
+            onChange={(e) => onUpdate(employee.id, 'blurb', e.target.value)}
+            className="border border-gray-300 rounded-xl px-4 py-3 w-full col-span-1 md:col-span-2 h-24 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          />
+        )}
+
+        {category === 'exitingEmployees' && (
+          <textarea
+            placeholder="Farewell message (optional) - brief message to appear on the exiting employee card"
+            value={(employee.blurb as string) || ''}
+            onChange={(e) => onUpdate(employee.id, 'blurb', e.target.value)}
+            className="border border-gray-300 rounded-xl px-4 py-3 w-full col-span-1 md:col-span-2 h-24 focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all"
           />
         )}
       </div>

@@ -35,16 +35,26 @@ export function useNewsletterData() {
         const response = await fetch(`/api/newsletter?month=${encodeURIComponent(month)}&year=${year}`);
         
         if (!response.ok) {
-          throw new Error('Failed to load newsletter data');
+          // Try to parse server error details to provide a better message
+          let errMsg = `HTTP ${response.status}`;
+          try {
+            const errBody = await response.json();
+            // Prefer the more informative 'details' field if available
+            errMsg = errBody?.details || errBody?.error || JSON.stringify(errBody) || errMsg;
+          } catch (e) {
+            // ignore JSON parse errors
+          }
+          throw new Error(errMsg || 'Failed to load newsletter data');
         }
         
         const result = await response.json();
         if (result.data) {
           setNewsletterData(result.data);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error loading newsletter data:', err);
-        setError(err.message || 'Failed to load data');
+        const message = err instanceof Error ? err.message : String(err);
+        setError(message || 'Failed to load data');
       } finally {
         setIsLoading(false);
       }
@@ -61,7 +71,16 @@ export function useNewsletterData() {
       const response = await fetch(`/api/newsletter?month=${encodeURIComponent(month)}&year=${year}`);
       
       if (!response.ok) {
-        throw new Error('Failed to load newsletter data');
+        // Parse server error details if present
+        let errMsg = `HTTP ${response.status}`;
+        try {
+          const errBody = await response.json();
+          // Prefer the more informative 'details' field if available
+          errMsg = errBody?.details || errBody?.error || JSON.stringify(errBody) || errMsg;
+        } catch (e) {
+          // ignore
+        }
+        throw new Error(errMsg || 'Failed to load newsletter data');
       }
       
       const result = await response.json();
@@ -71,9 +90,10 @@ export function useNewsletterData() {
         setHistory([]);
         setHistoryStep(-1);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error loading newsletter data:', err);
-      setError(err.message || 'Failed to load data');
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message || 'Failed to load data');
     } finally {
       setIsLoading(false);
     }
@@ -126,10 +146,11 @@ export function useNewsletterData() {
 
       setShowSaveNotification(true);
       setTimeout(() => setShowSaveNotification(false), 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error saving newsletter data:', err);
-      setError(err.message || 'Failed to save data');
-      alert(`Failed to save: ${err.message}`);
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message || 'Failed to save data');
+      alert(`Failed to save: ${message}`);
     }
   }, [newsletterData]);
 
@@ -213,7 +234,7 @@ export function useNewsletterData() {
       } else if (id) {
         return {
           ...prev,
-          [category]: (prev[category] as any[]).filter(item => item.id !== id)
+          [category]: (prev[category] as Employee[]).filter(item => item.id !== id)
         };
       }
       return prev;

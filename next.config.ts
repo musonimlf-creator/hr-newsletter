@@ -5,7 +5,15 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   reactStrictMode: true,
   images: {
-    domains: [],
+    // Keep `domains` for compatibility; `remotePatterns` is preferred in newer Next.js.
+    domains: ['media.licdn.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'media.licdn.com',
+        pathname: '/**',
+      },
+    ],
   },
   // Enable server-side features for API routes
   experimental: {

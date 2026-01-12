@@ -29,14 +29,14 @@ export function EditorSection({
   const hasItems = isSingle ? items !== null : Array.isArray(items) && items.length > 0;
 
   return (
-    <div style={{ borderColor: '#E7DBEE' }} className="bg-white p-6 rounded-3xl shadow-md mb-6 border-2 hover:border-purple-500 transition-all duration-300" onMouseEnter={(e) => e.currentTarget.style.borderColor = '#6E3371'} onMouseLeave={(e) => e.currentTarget.style.borderColor = '#E7DBEE'}>
+    <div className="bg-white p-6 rounded-3xl shadow-md mb-6 border-2 border-[#E7DBEE] hover:border-[#6E3371] transition-all duration-300">
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <div style={{ background: 'linear-gradient(to bottom right, #52275A, #FFD058)' }} className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg bg-gradient-to-br from-[#52275A] to-[#FFD058]">
             <Icon className="text-white" size={24} />
           </div>
           <div>
-            <h3 style={{ color: '#52275A' }} className="text-xl font-bold">{title}</h3>
+            <h3 className="text-xl font-bold text-[#52275A]">{title}</h3>
             {hasItems && (
               <span className="text-sm text-gray-500">
                 {isSingle ? '1 entry' : `${Array.isArray(items) ? items.length : 0} ${Array.isArray(items) && items.length === 1 ? 'entry' : 'entries'}`}
@@ -47,8 +47,7 @@ export function EditorSection({
         
         <button
           onClick={onAdd}
-          style={{ background: 'linear-gradient(to right, #52275A, #6E3371)', color: '#FFFFFF' }}
-          className={`px-5 py-2.5 rounded-xl flex items-center gap-2 font-bold shadow-xl transition-all transform hover:scale-105 hover:opacity-90 ${
+          className={`px-5 py-2.5 rounded-xl flex items-center gap-2 font-bold shadow-xl transition-all transform hover:scale-105 hover:opacity-90 bg-gradient-to-r from-[#52275A] to-[#6E3371] text-white ${
             isSingle && items !== null ? 'opacity-50 cursor-not-allowed' : ''
           }`}
           disabled={isSingle && items !== null}
@@ -62,10 +61,10 @@ export function EditorSection({
       <div className="space-y-3">
         {category === 'events' ? (
           Array.isArray(items) && items.length === 0 ? (
-            <div style={{ backgroundColor: '#E7DBEE', borderColor: '#6E3371' }} className="text-center py-12 rounded-2xl border-2 border-dashed">
-              <Calendar style={{ color: '#52275A' }} className="mx-auto mb-3" size={48} />
-              <p style={{ color: '#52275A' }} className="font-semibold">No events added yet</p>
-              <p style={{ color: '#6E3371' }} className="text-sm mt-1 font-medium">Click "Add" to create an event</p>
+            <div className="text-center py-12 rounded-2xl border-2 border-dashed bg-[#E7DBEE] border-[#6E3371]">
+              <Calendar className="mx-auto mb-3 text-[#52275A]" size={48} />
+              <p className="font-semibold text-[#52275A]">No events added yet</p>
+              <p className="text-sm mt-1 font-medium text-[#6E3371]">Click &quot;Add&quot; to create an event</p>
             </div>
           ) : (
             Array.isArray(items) && (items as Event[]).map((event: Event) => (
@@ -87,17 +86,17 @@ export function EditorSection({
               onRemove={() => onRemove()}
             />
           ) : (
-            <div style={{ backgroundColor: '#E7DBEE', borderColor: '#6E3371' }} className="text-center py-12 rounded-2xl border-2 border-dashed">
-              <Icon style={{ color: '#52275A' }} className="mx-auto mb-3" size={48} />
-              <p style={{ color: '#52275A' }} className="font-semibold">No employee added yet</p>
-              <p style={{ color: '#6E3371' }} className="text-sm mt-1 font-medium">Click "Add" to select an employee</p>
+            <div className="text-center py-12 rounded-2xl border-2 border-dashed bg-[#E7DBEE] border-[#6E3371]">
+              <Icon className="mx-auto mb-3 text-[#52275A]" size={48} />
+              <p className="font-semibold text-[#52275A]">No employee added yet</p>
+              <p className="text-sm mt-1 font-medium text-[#6E3371]">Click &quot;Add&quot; to select an employee</p>
             </div>
           )
         ) : Array.isArray(items) && items.length === 0 ? (
-          <div style={{ backgroundColor: '#E7DBEE', borderColor: '#6E3371' }} className="text-center py-12 rounded-2xl border-2 border-dashed">
-            <Icon style={{ color: '#52275A' }} className="mx-auto mb-3" size={48} />
-            <p style={{ color: '#52275A' }} className="font-semibold">No employees added yet</p>
-            <p style={{ color: '#6E3371' }} className="text-sm mt-1 font-medium">Click "Add" to create an entry</p>
+          <div className="text-center py-12 rounded-2xl border-2 border-dashed bg-[#E7DBEE] border-[#6E3371]">
+            <Icon className="mx-auto mb-3 text-[#52275A]" size={48} />
+            <p className="font-semibold text-[#52275A]">No employees added yet</p>
+            <p className="text-sm mt-1 font-medium text-[#6E3371]">Click &quot;Add&quot; to create an entry</p>
           </div>
         ) : (
           Array.isArray(items) && (items as Employee[]).map((employee: Employee) => (
