@@ -63,7 +63,8 @@ export function ExitingEmployeesCard({ employees }: ExitingEmployeesCardProps) {
 
               <div className="flex-shrink-0 text-sm text-slate-600">We thank them for their service</div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
