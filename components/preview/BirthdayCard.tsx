@@ -133,7 +133,7 @@ export function BirthdayCard({ employees }: BirthdayCardProps) {
 
         <p className="mb-4 text-slate-600">{generateBirthdayBlurb(employees)}</p>
 
-        <div className="max-h-64 overflow-auto">
+        <div>
           <ul className="space-y-3">
             {employees.map(emp => {
                 const photo = (() => {
