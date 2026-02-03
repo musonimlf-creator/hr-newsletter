@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { NewsletterPreview } from '@/components/preview/NewsletterPreview';
 import type { NewsletterData } from '@/types/newsletter';
+import { MONTHS } from '@/utils/constants';
 
 type Period = {
   month: string;
@@ -11,8 +12,10 @@ type Period = {
   createdAt: string | null;
 };
 
-function periodKey(p: { month: string; year: string }) {
-  return `${p.month}-${p.year}`;
+function periodKey(p: Period) {
+  // Use timestamps as part of the key so multiple saved editions of the same month/year are unique.
+  const stamp = p.updatedAt || p.createdAt || '';
+  return `${p.month}-${p.year}-${stamp}`;
 }
 
 export function AllTimeNewsletterFeed() {
@@ -38,8 +41,24 @@ export function AllTimeNewsletterFeed() {
           return;
         }
         const data = Array.isArray(json?.data) ? (json.data as Period[]) : [];
-        // Filter out empty months/years just in case
-        setPeriods(data.filter((p) => p.month && p.year));
+        // Filter out empty months/years and any old seeded short month names like "Jan", "Feb"
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonthIndex = now.getMonth(); // 0-based
+
+        setPeriods(
+          data.filter((p) => {
+            if (!p.month || !p.year) return false;
+            const monthIndex = MONTHS.indexOf(p.month);
+            if (monthIndex === -1) return false; // ignore unknown / short names
+            const yearNum = Number(p.year);
+            if (Number.isNaN(yearNum)) return false;
+            // Only include issues up to the current real-world month/year
+            if (yearNum > currentYear) return false;
+            if (yearNum === currentYear && monthIndex > currentMonthIndex) return false;
+            return true;
+          })
+        );
       } catch (e: any) {
         if (!cancelled) setError(e?.message || 'Failed to load newsletter periods');
       } finally {
