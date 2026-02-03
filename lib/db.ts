@@ -103,6 +103,29 @@ class InMemoryDB {
       };
     }
 
+    // SELECT month, year, updated_at, created_at FROM newsletters ORDER BY ... LIMIT ? OFFSET ?
+    if (
+      /SELECT\s+month\s*,\s*year\s*,\s*updated_at\s*,\s*created_at\s+FROM\s+newsletters/i.test(s) &&
+      /LIMIT\s+\?\s+OFFSET\s+\?/i.test(s)
+    ) {
+      return {
+        all: (limit: number, offset: number) => {
+          const sorted = [...this.newsletters].sort((a, b) => {
+            const at = new Date(a.updated_at || a.created_at || 0).getTime();
+            const bt = new Date(b.updated_at || b.created_at || 0).getTime();
+            if (at === bt) return (b.id || 0) - (a.id || 0);
+            return bt - at;
+          });
+          return sorted.slice(Number(offset), Number(offset) + Number(limit)).map(n => ({
+            month: n.month,
+            year: n.year,
+            updated_at: n.updated_at,
+            created_at: n.created_at,
+          }));
+        },
+      };
+    }
+
     // SELECT * FROM newsletter_entries WHERE newsletter_id = ? ORDER BY
     if (/SELECT\s+\*\s+FROM\s+newsletter_entries/i.test(s) && /WHERE\s+newsletter_id\s*=\s*\?/i.test(s)) {
       return {
@@ -117,6 +140,32 @@ class InMemoryDB {
               return (a.id - b.id);
             });
         }
+      };
+    }
+
+    // SELECT merged feed for newsletter feed endpoint:
+    // SELECT e.*, n.month, n.year, e.created_at FROM newsletter_entries e
+    // JOIN newsletters n ON e.newsletter_id = n.id ORDER BY e.created_at DESC
+    if (/SELECT\s+e\.\*,\s*n\.month\s*,\s*n\.year\s*,\s*e\.created_at\s+FROM\s+newsletter_entries\s+e\s+JOIN\s+newsletters\s+n\s+ON\s+e\.newsletter_id\s*=\s*n\.id\s+ORDER\s+BY\s+e\.created_at\s+DESC/i.test(s)) {
+      return {
+        all: () => {
+          // Merge entries with their parent newsletter period in-memory
+          const rows = this.newsletter_entries.map(e => {
+            const newsletter = this.newsletters.find((n: any) => n.id === e.newsletter_id);
+            return {
+              ...e,
+              month: newsletter ? newsletter.month : null,
+              year: newsletter ? newsletter.year : null,
+            };
+          });
+          // Order by created_at DESC (fallback: id)
+          return rows.sort((a: any, b: any) => {
+            const ad = a.created_at ? new Date(a.created_at).getTime() : 0;
+            const bd = b.created_at ? new Date(b.created_at).getTime() : 0;
+            if (ad === bd) return (b.id || 0) - (a.id || 0);
+            return bd - ad;
+          });
+        },
       };
     }
 
