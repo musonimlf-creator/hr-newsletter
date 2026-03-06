@@ -269,7 +269,7 @@ class InMemoryDB {
   }
 
   // Mimic better-sqlite3's transaction API: `const tx = db.transaction(fn); tx();`
-  transaction(fn: () => any) {
+  transaction(fn: (...args: any[]) => any) {
     const self = this;
     return function wrappedTransaction(...args: any[]) {
       // Snapshot current state

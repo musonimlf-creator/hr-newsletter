@@ -50,18 +50,33 @@ export function TransfersCard({ employees }: TransfersCardProps) {
               <div key={emp.id} className="flex items-center gap-4 rounded-2xl bg-white p-3 shadow-sm border border-slate-100">
                 <div className="relative h-12 w-12 overflow-hidden rounded-lg bg-slate-100 flex items-center justify-center">
                   {photo ? (
-                    <Image src={photo} alt={emp.name} width={48} height={48} className="rounded-lg object-cover" />
+                    <Image
+                      src={photo}
+                      alt={emp.name}
+                      width={48}
+                      height={48}
+                      className="rounded-lg object-cover"
+                    />
                   ) : (
-                    <span className={`text-xl font-bold bg-linear-to-br ${config.gradient} bg-clip-text text-transparent`}>{emp.name.charAt(0)}</span>
+                    <span
+                      className={`text-xl font-bold bg-linear-to-br ${config.gradient} bg-clip-text text-transparent`}
+                    >
+                      {emp.name.charAt(0)}
+                    </span>
                   )}
                 </div>
 
-              <div className="flex-1">
-                <h4 className="text-base font-bold text-slate-800">{emp.name}</h4>
-                <p className="mt-1 text-sm text-slate-700">{emp.position ? `They work as ${emp.position}` : 'Role not provided'}{emp.department ? ` in ${emp.department}.` : '.'} {`Transferring from ${emp.fromDepartment ?? 'previous department not provided'} to ${emp.toDepartment ?? 'new department not provided'}${emp.date ? ` effective ${emp.date}` : ''}.`}</p>
+                <div className="flex-1">
+                  <h4 className="text-base font-bold text-slate-800">{emp.name}</h4>
+                  <p className="mt-1 text-sm text-slate-700">
+                    {emp.position ? `They work as ${emp.position}` : 'Role not provided'}
+                    {emp.department ? ` in ${emp.department}.` : '.'}
+                    {` Transferring from ${emp.fromDepartment ?? 'previous department not provided'} to ${emp.toDepartment ?? 'new department not provided'}${emp.date ? ` effective ${emp.date}` : ''}.`}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

@@ -156,7 +156,7 @@ export function BirthdayCard({ employees }: BirthdayCardProps) {
 
                   <div>
                     <h4 className="text-base font-bold text-slate-800">{emp.name}</h4>
-                    <p className="mt-1 text-sm text-slate-700">{emp.position ? ` ${emp.position}` : 'Role not provided'}{emp.department ? ` in ${emp.department} ` : ''}{emp.date ? ` and celebrated the birthday on ${formatDateShort(emp.date)}` : ''}</p>
+                    <p className="mt-1 text-sm text-slate-700">{emp.position ? ` ${emp.position}` : 'Role not provided'}{emp.department ? ` in ${emp.department} Department` : ''}{emp.date ? ` celebrates a birthday on ${formatDateShort(emp.date)}` : ''}</p>
                   </div>
                 </div>
               </li>
