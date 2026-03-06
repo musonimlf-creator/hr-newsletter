@@ -8,7 +8,7 @@ export function generateNewHiresBlurb(employees: Employee[]) {
     const position = e.position ? `${e.position}` : 'role not provided';
     const dept = e.department ? `${e.department}` : 'department not provided';
     // Prefer a clear sentence that explicitly states position and department
-    return `Please join us in welcoming ${e.name}, who joins us as ${position} in the ${dept}.`;
+    return `Please join us in welcoming ${e.name}, who joined us as ${position} in the ${dept}.`;
   }
 
   // Multiple hires: include position + department inline in the top summary for clarity
@@ -33,7 +33,7 @@ export function generatePromotionsBlurb(employees: Employee[]) {
     if (e.previousPosition || e.previousDepartment) {
       const prevPos = e.previousPosition ?? 'role not provided';
       const prevDept = e.previousDepartment ?? (e.department ?? 'department not provided');
-      return `${e.name} was ${prevPos}${e.previousDepartment ? ` in ${prevDept}` : ''} and is now ${newRole}${e.department ? ` in ${newDept}` : ''}.`;
+      return `${e.name} moved from ${prevPos}${e.previousDepartment ? ` in ${prevDept}` : ''} to ${newRole}${e.department ? ` in ${newDept}` : ''}.`;
     }
 
     return `${e.name} has been promoted to ${newRole} in the ${newDept}. Please join us in congratulating them.`;
@@ -62,13 +62,13 @@ export function generateTransfersBlurb(employees: Employee[]) {
       const fromDept = e.fromDepartment ?? 'department not provided';
       const toPos = e.toPosition ?? 'role not provided';
       const toDept = e.toDepartment ?? 'department not provided';
-      return `${e.name} was ${fromPos}${e.fromDepartment ? ` in ${fromDept}` : ''} and is now ${toPos}${e.toDepartment ? ` in ${toDept}` : ''}${date}.`;
+      return `${e.name} moved from ${fromPos}${e.fromDepartment ? ` in ${fromDept}` : ''} to ${toPos}${e.toDepartment ? ` in ${toDept}` : ''}${date}.`;
     }
 
     const from = e.fromDepartment ? `${e.fromDepartment}` : 'previous department not provided';
     const to = e.toDepartment ? `${e.toDepartment}` : 'new department not provided';
 
-    return `${e.name} is transferring from ${from} to ${to}${date}. Please join us in wishing them a smooth transition.`;
+    return `${e.name} transferred from ${from} to ${to}${date}. Please join us in wishing them a smooth transition.`;
   }
 
   const bullets = employees.map(e => {

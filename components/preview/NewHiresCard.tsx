@@ -59,7 +59,7 @@ export function NewHiresCard({ employees }: NewHiresCardProps) {
 
               <div className="flex-1">
                 <h4 className="text-base font-bold text-slate-800">{emp.name}</h4>
-                <p className="mt-1 text-sm text-slate-700">{emp.position ? `is joining us as ${emp.position}` : 'Role not provided'}{emp.department ? ` in ${emp.department} department.` : '.'}</p>
+                <p className="mt-1 text-sm text-slate-700">{emp.position ? `Joined us as ${emp.position}` : 'Role not provided'}{emp.department ? ` in ${emp.department} department.` : '.'}</p>
                 {emp.blurb && (
                   <div className="mt-2">
                     <p className="text-sm leading-relaxed text-slate-600">{emp.blurb}</p>

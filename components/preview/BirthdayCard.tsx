@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { Calendar } from 'lucide-react';
+import { safeImageSrc } from './imageUtils';
 import type { Employee } from '@/types/newsletter';
 import { CARD_CONFIG } from './cardConfig';
 
@@ -41,12 +42,12 @@ function generateBirthdayBlurb(emps: Employee[]) {
 
   const MAX_LIST = 8; // show up to this many names inline, then indicate there are more
   if (items.length <= MAX_LIST) {
-    return `Upcoming birthdays: ${items.join(', ')}.`;
+    return `Celebrated birthdays: ${items.join(', ')}.`;
   }
 
   const shown = items.slice(0, MAX_LIST).join(', ');
   const remaining = items.length - MAX_LIST;
-  return `Upcoming birthdays: ${shown}, and ${remaining} more. See details below.`;
+  return `Celebrated birthdays: ${shown}, and ${remaining} more. See details below.`;
 }
 
 export function BirthdayCard({ employees }: BirthdayCardProps) {
@@ -73,8 +74,6 @@ export function BirthdayCard({ employees }: BirthdayCardProps) {
                   {(() => {
                     const photo = (() => {
                       try {
-                        // eslint-disable-next-line @typescript-eslint/no-var-requires
-                        const { safeImageSrc } = require('./imageUtils');
                         return safeImageSrc(e.photoUrl);
                       } catch {
                         return undefined;
@@ -121,10 +120,10 @@ export function BirthdayCard({ employees }: BirthdayCardProps) {
         {config.icon}
         <span>{config.label}</span>
       </div>
-
+  
       <div className="p-6 md:p-8">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="font-serif text-2xl font-extrabold leading-tight text-slate-900">Upcoming Birthdays</h3>
+          <h3 className="font-serif text-2xl font-extrabold leading-tight text-slate-900">Celebrated Birthdays</h3>
           <div className={`flex items-center gap-2 rounded-full px-3 py-1 bg-white text-sm font-bold ${config.accent}`}>
             <span className="text-slate-800">{employees.length}</span>
             <span className="text-slate-500">people</span>
@@ -138,8 +137,6 @@ export function BirthdayCard({ employees }: BirthdayCardProps) {
             {employees.map(emp => {
                 const photo = (() => {
                   try {
-                    // eslint-disable-next-line @typescript-eslint/no-var-requires
-                    const { safeImageSrc } = require('./imageUtils');
                     return safeImageSrc(emp.photoUrl);
                   } catch {
                     return undefined;
@@ -159,7 +156,7 @@ export function BirthdayCard({ employees }: BirthdayCardProps) {
 
                   <div>
                     <h4 className="text-base font-bold text-slate-800">{emp.name}</h4>
-                    <p className="mt-1 text-sm text-slate-700">{emp.position ? ` ${emp.position}` : 'Role not provided'}{emp.department ? ` in ${emp.department} Department` : ''}{emp.date ? ` and will be celebrating the birthday on ${formatDateShort(emp.date)}` : ''}</p>
+                    <p className="mt-1 text-sm text-slate-700">{emp.position ? ` ${emp.position}` : 'Role not provided'}{emp.department ? ` in ${emp.department} ` : ''}{emp.date ? ` and celebrated the birthday on ${formatDateShort(emp.date)}` : ''}</p>
                   </div>
                 </div>
               </li>
