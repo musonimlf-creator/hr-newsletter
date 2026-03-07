@@ -279,7 +279,7 @@ export default function Home() {
             />
 
             <EditorSection
-              title="Upcoming Birthdays"
+              title="Celebrated Birthdays"
               icon={Cake}
               category="birthdays"
               items={newsletterData.birthdays}

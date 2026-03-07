@@ -49,7 +49,7 @@ export function NewsletterPreview({ data }: { data: NewsletterData }) {
       )}
 
       {data.birthdays.length > 0 && (
-        <PreviewSection title="Upcoming Birthdays 🎂" icon={Cake} gradient="from-pink-500 to-pink-700">
+        <PreviewSection title="Celebrated Birthdays 🎂" icon={Cake} gradient="from-pink-500 to-pink-700">
           <BirthdayCard employees={data.birthdays.slice().reverse()} />
         </PreviewSection>
       )}
